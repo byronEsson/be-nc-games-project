@@ -3,6 +3,8 @@ const {
   getController,
   getReviewById,
   getUsers,
+  patchReview,
+  getReviews,
 } = require("./controllers/controller");
 const app = express();
 
@@ -14,6 +16,10 @@ app.get("/api/reviews/:review_id", getReviewById);
 
 app.get("/api/users", getUsers);
 
+app.patch("/api/reviews/:review_id", patchReview);
+
+app.get("/api/reviews", getReviews);
+
 // ---ERRORS---
 
 app.all("*", (req, res) => {
@@ -22,7 +28,22 @@ app.all("*", (req, res) => {
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-    res.status(400).send({ msg: "review_id must be a number" });
+    let value = "";
+    if (req.method === "GET") value = " for review_id";
+
+    if (req.method === "PATCH" && isNaN(err.review_id)) {
+      value = " for review_id";
+      //
+    } else if (req.method === "PATCH") {
+      value = " for inc_votes";
+    }
+
+    res.status(400).send({ msg: `Incorrect datatype${value}` });
+    //
+  } else if (err.code === "23502") {
+    res.status(400).send({
+      msg: "Was expecting request object of the form {inc_votes: <integer>}",
+    });
   } else next(err);
 });
 
@@ -33,6 +54,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ msg: "Server error" });
 });
 
