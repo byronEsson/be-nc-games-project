@@ -85,7 +85,7 @@ describe("/api", () => {
     });
   });
   describe("GET /api/users", () => {
-    test("response object should have key of users with array of user objects", () => {
+    test("200: response object should have key of users with array of user objects", () => {
       return request(app)
         .get("/api/users")
         .expect(200)
