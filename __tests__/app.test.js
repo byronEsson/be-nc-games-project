@@ -51,19 +51,32 @@ describe("/api", () => {
         .get("/api/reviews/1")
         .expect(200)
         .then(({ body: { review } }) => {
-          expect(review).toEqual({
-            review_id: 1,
-            title: "Agricola",
-            designer: "Uwe Rosenberg",
-            owner: "mallionaire",
-            review_img_url:
-              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-            review_body: "Farmyard fun!",
-            category: "euro game",
-            created_at: expect.any(String), //highlighting this to sort out
-            votes: 1,
-            comment_count: "0",
-          });
+          expect(review).toEqual(
+            expect.objectContaining({
+              review_id: 1,
+              title: "Agricola",
+              designer: "Uwe Rosenberg",
+              owner: "mallionaire",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "Farmyard fun!",
+              category: "euro game",
+              created_at: expect.any(String), //highlighting this to sort out
+              votes: 1,
+            })
+          );
+        });
+    });
+    test("200: response object also contains comment_count", () => {
+      return request(app)
+        .get("/api/reviews/1")
+        .expect(200)
+        .then(({ body: { review } }) => {
+          expect(review).toEqual(
+            expect.objectContaining({
+              comment_count: 0,
+            })
+          );
         });
     });
     describe("Errors", () => {
