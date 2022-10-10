@@ -4,10 +4,14 @@ const {
   selectUsers,
 } = require("../models/model");
 
-exports.getController = (req, res) => {
-  selectCategories().then((categories) => {
-    res.status(200).send({ categories });
-  });
+exports.getController = (req, res, next) => {
+  selectCategories()
+    .then((categories) => {
+      res.status(200).send({ categories });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getReviewById = (req, res, next) => {
@@ -22,8 +26,12 @@ exports.getReviewById = (req, res, next) => {
     });
 };
 
-exports.getUsers = (req, res) => {
-  selectUsers().then((users) => {
-    res.status(200).send({ users });
-  });
+exports.getUsers = (req, res, next) => {
+  selectUsers()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
