@@ -3,6 +3,7 @@ const {
   getController,
   getReviewById,
   getUsers,
+  patchReview,
 } = require("./controllers/controller");
 const app = express();
 
@@ -13,6 +14,8 @@ app.get("/api/categories", getController);
 app.get("/api/reviews/:review_id", getReviewById);
 
 app.get("/api/users", getUsers);
+
+app.patch("/api/reviews/:review_id", patchReview);
 
 // ---ERRORS---
 
@@ -27,7 +30,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err) {
+  if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });

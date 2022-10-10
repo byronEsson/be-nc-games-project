@@ -2,6 +2,7 @@ const {
   selectCategories,
   selectReviewById,
   selectUsers,
+  updateReview,
 } = require("../models/model");
 
 exports.getController = (req, res) => {
@@ -25,5 +26,16 @@ exports.getReviewById = (req, res, next) => {
 exports.getUsers = (req, res) => {
   selectUsers().then((users) => {
     res.status(200).send({ users });
+  });
+};
+
+exports.patchReview = (req, res, next) => {
+  const { review_id } = req.params;
+  const {
+    body: { inc_votes },
+  } = req;
+
+  updateReview(review_id, inc_votes).then((review) => {
+    res.status(200).send({ review });
   });
 };

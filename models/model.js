@@ -27,7 +27,15 @@ exports.selectReviewById = (reviewId) => {
 exports.selectUsers = () => {
   const queryString = `SELECT * FROM users`;
 
-    return db.query(queryString).then(({ rows: users }) => {
-      return users
+  return db.query(queryString).then(({ rows: users }) => {
+    return users;
+  });
+};
+
+exports.updateReview = (id, increment) => {
+  const queryString = `UPDATE reviews SET votes= votes+$2 WHERE review_id=$1 RETURNING *`;
+  const values = [id, increment];
+  return db.query(queryString, values).then(({ rows: [review] }) => {
+    return review;
   });
 };
