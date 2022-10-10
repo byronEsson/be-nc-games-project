@@ -35,7 +35,11 @@ exports.patchReview = (req, res, next) => {
     body: { inc_votes },
   } = req;
 
-  updateReview(review_id, inc_votes).then((review) => {
-    res.status(200).send({ review });
-  });
+  updateReview(review_id, inc_votes)
+    .then((review) => {
+      res.status(200).send({ review });
+    })
+      .catch((err) => {
+      next(err);
+    });
 };

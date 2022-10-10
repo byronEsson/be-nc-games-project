@@ -71,7 +71,7 @@ describe("/api", () => {
           .get("/api/reviews/nan")
           .expect(400)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("review_id must be a number");
+            expect(msg).toBe("Incorrect datatype for review_id");
           });
       });
       test("404: responds with error when id not in db", () => {
@@ -127,6 +127,32 @@ describe("/api", () => {
             votes: 3,
           });
         });
+    });
+    describe("Errors", () => {
+      test("400: responds with error when inc_votes of wrong type", () => {
+        const reqObj = { inc_votes: "nan" };
+
+        return request(app)
+          .patch("/api/reviews/1")
+          .send(reqObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for inc_votes");
+          });
+      });
+      test("400: responds with error when object formatted incorrectly", () => {
+        const reqObj = { not_inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/reviews/1")
+          .send(reqObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              "Was expecting request object of the form {inc_votes: <integer>}"
+            );
+          });
+      });
     });
   });
 });
