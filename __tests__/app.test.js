@@ -32,7 +32,6 @@ describe("/api", () => {
         .then(({ body: { categories } }) => {
           expect(categories).toBeInstanceOf(Array);
           expect(categories.length).toBe(4);
-          console.log(categories);
           expect(
             categories.forEach((category) => {
               expect(category).toEqual(
@@ -83,6 +82,27 @@ describe("/api", () => {
             expect(msg).toBe("No review with that ID (9999)");
           });
       });
+    });
+  });
+  describe("GET /api/users", () => {
+    test("response object should have key of users with array of user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users.length).toBe(4);
+          expect(
+            users.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  avatar_url: expect.any(String),
+                })
+              );
+            })
+          );
+        });
     });
   });
 });

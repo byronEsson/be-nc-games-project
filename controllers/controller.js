@@ -1,13 +1,13 @@
-const { selectCategories, selectReviewById } = require("../models/model");
+const {
+  selectCategories,
+  selectReviewById,
+  selectUsers,
+} = require("../models/model");
 
 exports.getController = (req, res) => {
-  selectCategories()
-    .then((categories) => {
-      res.status(200).send({ categories });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  selectCategories().then((categories) => {
+    res.status(200).send({ categories });
+  });
 };
 
 exports.getReviewById = (req, res, next) => {
@@ -20,4 +20,10 @@ exports.getReviewById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getUsers = (req, res) => {
+  selectUsers().then((users) => {
+    res.status(200).send({ users });
+  });
 };

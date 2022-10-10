@@ -15,8 +15,19 @@ exports.selectReviewById = (reviewId) => {
 
   return db.query(queryString, values).then(({ rows: [review] }) => {
     if (!review) {
-      return Promise.reject({ status: 404, msg: `No review with that ID (${reviewId})` });
+      return Promise.reject({
+        status: 404,
+        msg: `No review with that ID (${reviewId})`,
+      });
     }
     return review;
+  });
+};
+
+exports.selectUsers = () => {
+  const queryString = `SELECT * FROM users`;
+
+    return db.query(queryString).then(({ rows: users }) => {
+      return users
   });
 };
