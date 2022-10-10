@@ -142,7 +142,7 @@ describe("/api", () => {
           });
         });
     });
-    describe.only("Errors", () => {
+    describe("Errors", () => {
       test("400: responds with error when inc_votes of wrong type", () => {
         const reqObj = { inc_votes: "nan" };
 

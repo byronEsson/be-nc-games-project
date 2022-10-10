@@ -28,17 +28,17 @@ app.all("*", (req, res) => {
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-    let value = "";
-    if (req.method === "GET") value = " for review_id";
+    let addToError = "";
+    if (req.method === "GET") addToError = " for review_id";
 
     if (req.method === "PATCH" && isNaN(err.review_id)) {
-      value = " for review_id";
+      addToError = " for review_id";
       //
     } else if (req.method === "PATCH") {
-      value = " for inc_votes";
+      addToError = " for inc_votes";
     }
 
-    res.status(400).send({ msg: `Incorrect datatype${value}` });
+    res.status(400).send({ msg: `Incorrect datatype${addToError}` });
     //
   } else if (err.code === "23502") {
     res.status(400).send({
