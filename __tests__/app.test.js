@@ -128,7 +128,7 @@ describe("/api", () => {
           });
         });
     });
-    describe("Errors", () => {
+    describe.only("Errors", () => {
       test("400: responds with error when inc_votes of wrong type", () => {
         const reqObj = { inc_votes: "nan" };
 
@@ -153,6 +153,53 @@ describe("/api", () => {
             );
           });
       });
+      test("400: when passed id of invalid type", () => {
+        const reqObj = { inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/reviews/nn")
+          .send(reqObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for review_id");
+          });
+      });
+      test("404: when passed id not in db", () => {
+        const reqObj = { inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/reviews/99999")
+          .send(reqObj)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("No review with that ID");
+          });
+      });
     });
   });
+  //   describe("GET /api/reviews", () => {
+  //     test("200: responds with array of review objects", () => {
+  //       return request(app)
+  //         .get("/api/reviews")
+  //         .expect(200)
+  //         .then(({ body: { reviews } }) => {
+  //           expect(reviews.length).toBe(12);
+  //           expect(
+  //             reviews.forEach((review) => {
+  //               expect.objectContaining({
+  //                 owner: expect.any(String),
+  //                 title: expect.any(String),
+  //                 review_id: expect.any(Number),
+  //                 category: expect.any(String),
+  //                 review_img_url: expect.any(String),
+  //                 created_at: expect.any(String),
+  //                 votes: expect.any(Number),
+  //                 designer: expect.any(String),
+  //                 comment_count: expect.any(String),
+  //               });
+  //             })
+  //           );
+  //         });
+  //     });
+  //   });
 });

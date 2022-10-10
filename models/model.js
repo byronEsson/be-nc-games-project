@@ -36,6 +36,13 @@ exports.updateReview = (id, increment) => {
   const queryString = `UPDATE reviews SET votes= votes+$2 WHERE review_id=$1 RETURNING *`;
   const values = [id, increment];
   return db.query(queryString, values).then(({ rows: [review] }) => {
+    if (!review) {
+      return Promise.reject({ status: 404, msg: "No review with that ID" });
+    }
     return review;
   });
+};
+
+exports.selectReviews = (query) => {
+  const queryString = `SELECT * FROM reviews`;
 };

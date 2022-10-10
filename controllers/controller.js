@@ -3,6 +3,7 @@ const {
   selectReviewById,
   selectUsers,
   updateReview,
+  selectReviews,
 } = require("../models/model");
 
 exports.getController = (req, res) => {
@@ -39,7 +40,13 @@ exports.patchReview = (req, res, next) => {
     .then((review) => {
       res.status(200).send({ review });
     })
-      .catch((err) => {
+    .catch((err) => {
+      err.review_id = review_id;
+      err.inc_votes = inc_votes;
       next(err);
     });
+};
+
+exports.getReviews = (req, res, next) => {
+  selectReviews();
 };
