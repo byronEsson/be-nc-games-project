@@ -25,27 +25,13 @@ describe("/api", () => {
     });
   });
   describe("/api/categories", () => {
-    test("200: response object should have key of objects with an array as value", () => {
+    test("200: response object should have key of categories with an array as of correct category objects", () => {
       return request(app)
         .get("/api/categories")
         .expect(200)
         .then(({ body: { categories } }) => {
           expect(categories).toBeInstanceOf(Array);
-        });
-    });
-    test("200: array should have contain all categories", () => {
-      return request(app)
-        .get("/api/categories")
-        .expect(200)
-        .then(({ body: { categories } }) => {
           expect(categories.length).toBe(4);
-        });
-    });
-    test("200: returned objects have correct keys", () => {
-      return request(app)
-        .get("/api/categories")
-        .expect(200)
-        .then(({ body: { categories } }) => {
           expect(
             categories.forEach((category) => {
               expect(category).toEqual(
