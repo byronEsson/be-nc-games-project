@@ -62,6 +62,7 @@ describe("/api", () => {
             category: "euro game",
             created_at: expect.any(String), //highlighting this to sort out
             votes: 1,
+            comment_count: "0",
           });
         });
     });

@@ -10,7 +10,9 @@ exports.selectCategories = () => {
 };
 
 exports.selectReviewById = (reviewId) => {
-  const queryString = `SELECT * FROM reviews WHERE review_id = $1`;
+  const queryString = `SELECT reviews.*, COUNT(body) AS comment_count FROM reviews 
+  LEFT JOIN comments ON reviews.review_id=comments.review_id WHERE reviews.review_id = $1
+  GROUP BY reviews.review_id`;
   const values = [reviewId];
 
   return db.query(queryString, values).then(({ rows: [review] }) => {
@@ -27,7 +29,7 @@ exports.selectReviewById = (reviewId) => {
 exports.selectUsers = () => {
   const queryString = `SELECT * FROM users`;
 
-    return db.query(queryString).then(({ rows: users }) => {
-      return users
+  return db.query(queryString).then(({ rows: users }) => {
+    return users;
   });
 };
