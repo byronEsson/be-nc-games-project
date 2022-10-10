@@ -12,6 +12,18 @@ afterAll(() => {
 });
 
 describe("/api", () => {
+  describe("General Errors", () => {
+    describe("404: Not Found", () => {
+      test("404: response when given bad path", () => {
+        return request(app)
+          .get("/api/c")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Route not found!");
+          });
+      });
+    });
+  });
   describe("/api/categories", () => {
     test("200: response object should have key of objects with an array as value", () => {
       return request(app)
