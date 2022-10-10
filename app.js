@@ -1,6 +1,10 @@
 const express = require("express");
+const { getController } = require("./controllers/controller");
 const app = express();
 
 app.use(express.json());
 
-module.exports = { app };
+app.get("/api/categories", getController);
+
+
+module.exports = app;
