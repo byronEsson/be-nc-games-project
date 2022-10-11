@@ -192,12 +192,13 @@ describe("/api", () => {
     });
   });
   describe("GET /api/reviews", () => {
-    test("200: responds with array of review objects", () => {
+    test("200: responds with array of review objects sorted by date", () => {
       return request(app)
         .get("/api/reviews")
         .expect(200)
         .then(({ body: { reviews } }) => {
           expect(reviews.length).toBe(13);
+          expect(reviews).toBeSortedBy()
           expect(
             reviews.forEach((review) => {
               expect(review).toEqual(
@@ -210,7 +211,7 @@ describe("/api", () => {
                   created_at: expect.any(String),
                   votes: expect.any(Number),
                   designer: expect.any(String),
-                  comment_count: expect.any(String),
+                  comment_count: expect.any(Number),
                 })
               );
             })

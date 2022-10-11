@@ -46,7 +46,9 @@ exports.updateReview = (id, increment) => {
 };
 
 exports.selectReviews = (category) => {
-  const queryString = `SELECT * FROM reviews`;
+  const queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews 
+  LEFT JOIN comments ON reviews.review_id=comments.review_id
+  GROUP BY reviews.review_id`;
 
   return db.query(queryString).then(({ rows: reviews }) => {
     return reviews;
