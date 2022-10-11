@@ -51,18 +51,32 @@ describe("/api", () => {
         .get("/api/reviews/1")
         .expect(200)
         .then(({ body: { review } }) => {
-          expect(review).toEqual({
-            review_id: 1,
-            title: "Agricola",
-            designer: "Uwe Rosenberg",
-            owner: "mallionaire",
-            review_img_url:
-              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-            review_body: "Farmyard fun!",
-            category: "euro game",
-            created_at: expect.any(String), //highlighting this to sort out
-            votes: 1,
-          });
+          expect(review).toEqual(
+            expect.objectContaining({
+              review_id: 1,
+              title: "Agricola",
+              designer: "Uwe Rosenberg",
+              owner: "mallionaire",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "Farmyard fun!",
+              category: "euro game",
+              created_at: expect.any(String), //highlighting this to sort out
+              votes: 1,
+            })
+          );
+        });
+    });
+    test("200: response object also contains comment_count", () => {
+      return request(app)
+        .get("/api/reviews/1")
+        .expect(200)
+        .then(({ body: { review } }) => {
+          expect(review).toEqual(
+            expect.objectContaining({
+              comment_count: 0,
+            })
+          );
         });
     });
     describe("Errors", () => {
@@ -151,6 +165,28 @@ describe("/api", () => {
             expect(msg).toBe(
               "Was expecting request object of the form {inc_votes: <integer>}"
             );
+          });
+      });
+      test("400: when passed id of invalid type", () => {
+        const reqObj = { inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/reviews/nn")
+          .send(reqObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for review_id");
+          });
+      });
+      test("404: when passed id not in db", () => {
+        const reqObj = { inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/reviews/99999")
+          .send(reqObj)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("No review with that ID");
           });
       });
     });

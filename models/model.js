@@ -10,7 +10,9 @@ exports.selectCategories = () => {
 };
 
 exports.selectReviewById = (reviewId) => {
-  const queryString = `SELECT * FROM reviews WHERE review_id = $1`;
+  const queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews 
+  LEFT JOIN comments ON reviews.review_id=comments.review_id WHERE reviews.review_id = $1
+  GROUP BY reviews.review_id`;
   const values = [reviewId];
 
   return db.query(queryString, values).then(({ rows: [review] }) => {
@@ -36,6 +38,9 @@ exports.updateReview = (id, increment) => {
   const queryString = `UPDATE reviews SET votes= votes+$2 WHERE review_id=$1 RETURNING *`;
   const values = [id, increment];
   return db.query(queryString, values).then(({ rows: [review] }) => {
+    if (!review) {
+      return Promise.reject({ status: 404, msg: "No review with that ID" });
+    }
     return review;
   });
 };

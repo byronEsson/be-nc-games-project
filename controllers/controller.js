@@ -6,10 +6,14 @@ const {
   selectReviews,
 } = require("../models/model");
 
-exports.getController = (req, res) => {
-  selectCategories().then((categories) => {
-    res.status(200).send({ categories });
-  });
+exports.getController = (req, res, next) => {
+  selectCategories()
+    .then((categories) => {
+      res.status(200).send({ categories });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getReviewById = (req, res, next) => {
@@ -24,10 +28,14 @@ exports.getReviewById = (req, res, next) => {
     });
 };
 
-exports.getUsers = (req, res) => {
-  selectUsers().then((users) => {
-    res.status(200).send({ users });
-  });
+exports.getUsers = (req, res, next) => {
+  selectUsers()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.patchReview = (req, res, next) => {
@@ -41,6 +49,8 @@ exports.patchReview = (req, res, next) => {
       res.status(200).send({ review });
     })
     .catch((err) => {
+      err.review_id = review_id;
+      err.inc_votes = inc_votes;
       next(err);
     });
 };
