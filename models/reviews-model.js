@@ -76,3 +76,14 @@ exports.selectCommentsByReview = (id) => {
     return comments;
   });
 };
+<<<<<<< HEAD:models/reviews-model.js
+=======
+
+exports.insertComment = (id, text, user) => {
+  const queryString = `INSERT INTO comments (review_id, body, author) VALUES ($1, $2, $3) RETURNING *`;
+
+  return db.query(queryString, [id, text, user]).then(({ rows: [comment] }) => {
+    return comment;
+  });
+};
+>>>>>>> e9ad596 (refactor error handlers to be more readable):models/model.js

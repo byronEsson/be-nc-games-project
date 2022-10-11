@@ -98,4 +98,8 @@ exports.postCommentByReview = (req, res, next) => {
       err.review_id = review_id;
       next(err);
     });
+<<<<<<< HEAD:controllers/reviews-controller.js
+=======
+
+>>>>>>> e9ad596 (refactor error handlers to be more readable):controllers/controller.js
 };
