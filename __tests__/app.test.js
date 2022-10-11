@@ -216,4 +216,55 @@ describe("/api", () => {
   //         });
   //     });
   //   });
+  describe("GET /api/reviews/:review_id/comments", () => {
+    test("200: should respond with array of comments objects", () => {
+      return request(app)
+        .get("/api/reviews/2/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(3);
+          console.log(comments[0]);
+          expect(
+            comments.forEach((comment) => {
+              expect(comment).toEqual(
+                expect.objectContaining({
+                  comment_id: expect.any(Number),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  review_id: expect.any(Number),
+                })
+              );
+            })
+          );
+        });
+    });
+    describe("Errors", () => {
+      test("400: should respond with error when review_id of incorrect type", () => {
+        return request(app)
+          .get("/api/reviews/nan/comments")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for review_id");
+          });
+      });
+      test("404: should respond with an error when no reviews with that id", () => {
+        return request(app)
+          .get("/api/reviews/9999/comments")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("No review with that ID (9999)");
+          });
+      });
+      test("200: should respond with empty object when review has no comments", () => {
+        return request(app)
+          .get("/api/reviews/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toEqual([]);
+          });
+      });
+    });
+  });
 });

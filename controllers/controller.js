@@ -4,6 +4,7 @@ const {
   selectUsers,
   updateReview,
   selectReviews,
+  selectCommentsByReview,
 } = require("../models/model");
 
 exports.getController = (req, res, next) => {
@@ -57,4 +58,22 @@ exports.patchReview = (req, res, next) => {
 
 exports.getReviews = (req, res, next) => {
   selectReviews();
+};
+
+exports.getCommentsByReview = (req, res, next) => {
+  const { review_id } = req.params;
+
+  const promises = [
+    selectCommentsByReview(review_id),
+    selectReviewById(review_id),
+  ];
+
+  Promise.all(promises)
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      err.review_id = review_id;
+      next(err);
+    });
 };

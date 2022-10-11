@@ -48,3 +48,11 @@ exports.updateReview = (id, increment) => {
 exports.selectReviews = (query) => {
   const queryString = `SELECT * FROM reviews`;
 };
+
+exports.selectCommentsByReview = (id) => {
+  const queryString = `SELECT * FROM comments WHERE review_id = $1`;
+
+  return db.query(queryString, [id]).then(({ rows: comments }) => {
+    return comments;
+  });
+};
