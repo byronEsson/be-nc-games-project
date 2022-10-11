@@ -119,5 +119,4 @@ exports.postComment = (req, res, next) => {
       next(err);
     });
 
-  // insertComment(review_id, comment, username);
 };

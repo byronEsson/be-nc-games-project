@@ -46,26 +46,13 @@ app.use((err, req, res, next) => {
 
     res.status(400).send({ msg: `Incorrect datatype${addToError}` });
     //
-  } else if (err.code === "23502" && req.method === "PATCH") {
+  } else if (err.code === "23502") {
     res.status(400).send({
-      msg: "Was expecting request object of the form {inc_votes: <integer>}",
+      msg: "Invalid post body - missing necessary keys",
     });
-  } else if (err.code === "23502" && req.method === "POST") {
-    res
-      .status(400)
-      .send({ msg: "Invalid post body - username and body must be defined" });
-  } else if (
-    err.code === "23503" &&
-    req.method === "POST" &&
-    err.constraint.includes("author")
-  ) {
-    res.status(404).send({ msg: "No user with that name" });
-  } else if (
-    err.code === "23503" &&
-    req.method === "POST" &&
-    err.constraint.includes("review")
-  ) {
-    res.status(404).send({ msg: `No review with that ID (${err.review_id})` });
+  } else if (err.code === "23503") {
+    const forErr = err.detail.split(" ");
+    res.status(404).send({ msg: `No content found for ${forErr[1]}` });
   } else next(err);
 });
 

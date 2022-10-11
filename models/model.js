@@ -73,13 +73,6 @@ exports.selectCommentsByReview = (id) => {
 exports.insertComment = (id, text, user) => {
   const queryString = `INSERT INTO comments (review_id, body, author) VALUES ($1, $2, $3) RETURNING *`;
 
-  // if (!text || !user) {
-  //   return Promise.reject({
-  //     status: 400,
-  //     msg: "Invalid post body - username and body must be defined",
-  //   });
-  // }
-
   return db.query(queryString, [id, text, user]).then(({ rows: [comment] }) => {
     return comment;
   });

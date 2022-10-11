@@ -163,9 +163,7 @@ describe("/api", () => {
           .send(reqObj)
           .expect(400)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe(
-              "Was expecting request object of the form {inc_votes: <integer>}"
-            );
+            expect(msg).toBe("Invalid post body - missing necessary keys");
           });
       });
       test("400: when passed id of invalid type", () => {
@@ -339,9 +337,7 @@ describe("/api", () => {
           .send(postObj)
           .expect(400)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe(
-              "Invalid post body - username and body must be defined"
-            );
+            expect(msg).toBe("Invalid post body - missing necessary keys");
           });
       });
       test("400: when username not a valid user", () => {
@@ -354,7 +350,7 @@ describe("/api", () => {
           .send(postObj)
           .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("No user with that name");
+            expect(msg).toBe("No content found for (author)=(notAUser)");
           });
       });
       test("400: when id not of correct type", () => {
@@ -380,7 +376,7 @@ describe("/api", () => {
           .send(postObj)
           .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("No review with that ID (9999)");
+            expect(msg).toBe("No content found for (review_id)=(9999)");
           });
       });
     });
