@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
+const categories = require("../db/data/test-data/categories");
 
 beforeEach(() => {
   return seed(data);
@@ -236,20 +237,21 @@ describe("/api", () => {
         });
     });
     describe("Errors", () => {
-      test("400: responds with error when category of wrong type", () => {
+      test("404: responds with error when there are no category does not exist", () => {
         return request(app)
-          .get("/api/reviews?category=6")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Incorrect datatype for category");
-          });
-      });
-      test('404: responds with error when there are no reviews with that category', () => {
-        return request(app).get('/api/reviews?category=obscure+category')
+          .get("/api/reviews?category=obscure+category")
           .expect(404)
           .then(({ body: { msg } }) => {
-          expect(msg).toBe('No reviews with that category')
-        })
+            expect(msg).toBe("No such category");
+          });
+      });
+      test("200: should respond with empty array when category exists but has no reviews", () => {
+        return request(app)
+          .get("/api/reviews?category=children's+games")
+          .expect(200)
+          .then(({ body: { reviews } }) => {
+            expect(reviews).toEqual([]);
+          });
       });
     });
   });

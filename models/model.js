@@ -57,20 +57,7 @@ exports.selectReviews = (category) => {
 
   queryString += ` GROUP BY reviews.review_id ORDER BY reviews.created_at DESC`;
 
-  if (!isNaN(category)) {
-    return Promise.reject({
-      status: 400,
-      msg: "Incorrect datatype for category",
-    });
-  }
-
   return db.query(queryString, values).then(({ rows: reviews }) => {
-    if (reviews.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "No reviews with that category",
-      });
-    }
     return reviews;
   });
 };
