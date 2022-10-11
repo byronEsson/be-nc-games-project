@@ -257,12 +257,14 @@ describe("/api", () => {
     });
   });
   describe("GET /api/reviews/:review_id/comments", () => {
-    test("200: should respond with array of comments objects", () => {
+    test("200: should respond with array of comments objects sorted by date", () => {
       return request(app)
         .get("/api/reviews/2/comments")
         .expect(200)
         .then(({ body: { comments } }) => {
+          console.log(comments);
           expect(comments).toHaveLength(3);
+          expect(comments).toBeSortedBy("created_at", { descending: true });
           expect(
             comments.forEach((comment) => {
               expect(comment).toEqual(
