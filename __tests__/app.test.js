@@ -197,7 +197,7 @@ describe("/api", () => {
         .get("/api/reviews")
         .expect(200)
         .then(({ body: { reviews } }) => {
-          expect([1, 2, 3]).toBeSorted();
+          expect(reviews).toBeSortedBy("created_at", { descending: true });
           expect(reviews.length).toBe(13);
           expect(
             reviews.forEach((review) => {
@@ -218,6 +218,39 @@ describe("/api", () => {
           );
         });
     });
-    test("should ", () => {});
+    test("200: should accept a category query to filter reviews by category", () => {
+      return request(app)
+        .get("/api/reviews?category=social+deduction")
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          expect(reviews.length).toBe(11);
+          expect(
+            reviews.forEach((review) => {
+              expect(review).toEqual(
+                expect.objectContaining({
+                  category: "social deduction",
+                })
+              );
+            })
+          );
+        });
+    });
+    describe("Errors", () => {
+      test("400: responds with error when category of wrong type", () => {
+        return request(app)
+          .get("/api/reviews?category=6")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for category");
+          });
+      });
+      test('404: responds with error when there are no reviews with that category', () => {
+        return request(app).get('/api/reviews?category=obscure+category')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+          expect(msg).toBe('No reviews with that category')
+        })
+      });
+    });
   });
 });

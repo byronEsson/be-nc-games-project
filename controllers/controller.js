@@ -56,7 +56,11 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  selectReviews().then((reviews) => {
-    res.status(200).send({ reviews });
-  });
+  const { category } = req.query;
+
+  selectReviews(category)
+    .then((reviews) => {
+      res.status(200).send({ reviews });
+    })
+    .catch((err) => next(err));
 };
