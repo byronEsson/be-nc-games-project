@@ -58,9 +58,9 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  const { category } = req.query;
+  const { category, sort_by, order } = req.query;
 
-  const promises = [selectReviews(category)];
+  const promises = [selectReviews(category, sort_by, order)];
 
   if (category) promises.push(selectCategories());
 
@@ -118,5 +118,4 @@ exports.postComment = (req, res, next) => {
       err.review_id = review_id;
       next(err);
     });
-
 };
