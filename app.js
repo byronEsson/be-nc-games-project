@@ -6,6 +6,7 @@ const {
   patchReview,
   getReviews,
   getCommentsByReview,
+  deleteComment,
 } = require("./controllers/controller");
 const app = express();
 
@@ -22,6 +23,8 @@ app.patch("/api/reviews/:review_id", patchReview);
 app.get("/api/reviews", getReviews);
 
 app.get("/api/reviews/:review_id/comments", getCommentsByReview);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 // ---ERRORS---
 

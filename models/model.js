@@ -69,3 +69,9 @@ exports.selectCommentsByReview = (id) => {
     return comments;
   });
 };
+
+exports.removeComment = (id) => {
+  const queryString = `DELETE FROM comments WHERE comment_id=$1`;
+
+  return db.query(queryString, [id]);
+};

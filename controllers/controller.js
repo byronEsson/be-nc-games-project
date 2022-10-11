@@ -5,6 +5,7 @@ const {
   updateReview,
   selectReviews,
   selectCommentsByReview,
+  removeComment,
 } = require("../models/model");
 
 exports.getController = (req, res, next) => {
@@ -100,4 +101,12 @@ exports.getCommentsByReview = (req, res, next) => {
       err.review_id = review_id;
       next(err);
     });
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  removeComment(comment_id).then(() => {
+    res.status(204).send();
+  });
 };
