@@ -69,3 +69,11 @@ exports.selectCommentsByReview = (id) => {
     return comments;
   });
 };
+
+exports.insertComment = (id, text, user) => {
+  const queryString = `INSERT INTO comments (review_id, body, author) VALUES ($1, $2, $3) RETURNING *`;
+
+  return db.query(queryString, [id, text, user]).then(({ rows: [comment] }) => {
+    return comment;
+  });
+};
