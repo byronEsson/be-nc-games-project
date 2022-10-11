@@ -306,4 +306,83 @@ describe("/api", () => {
       });
     });
   });
+  describe("POST /api/reviews/review_id/comments", () => {
+    test("201: should respond with new comment object", () => {
+      const postObj = {
+        username: "mallionaire",
+        comment: "something about games",
+      };
+
+      return request(app)
+        .post("/api/reviews/1/comments")
+        .send(postObj)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: 7,
+              author: "mallionaire",
+              votes: 0,
+              body: "something about games",
+              review_id: 1,
+              created_at: expect.any(String),
+            })
+          );
+        });
+    });
+    describe("Errors", () => {
+      test("400: responds with error when properties missing", () => {
+        const postObj = {};
+
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .send(postObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              "Invalid post body - username and body must be defined"
+            );
+          });
+      });
+      test("400: when username not a valid user", () => {
+        const postObj = {
+          username: "notAUser",
+          comment: "something about games",
+        };
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .send(postObj)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("No user with that name");
+          });
+      });
+      test("400: when id not of correct type", () => {
+        const postObj = {
+          username: "mallionaire",
+          comment: "something about games",
+        };
+        return request(app)
+          .post("/api/reviews/nan/comments")
+          .send(postObj)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect datatype for review_id");
+          });
+      });
+      test("404: when id does not exist", () => {
+        const postObj = {
+          username: "mallionaire",
+          comment: "something about games",
+        };
+        return request(app)
+          .post("/api/reviews/9999/comments")
+          .send(postObj)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("No review with that ID (9999)");
+          });
+      });
+    });
+  });
 });

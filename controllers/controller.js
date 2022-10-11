@@ -5,6 +5,7 @@ const {
   updateReview,
   selectReviews,
   selectCommentsByReview,
+  insertComment,
 } = require("../models/model");
 
 exports.getController = (req, res, next) => {
@@ -100,4 +101,23 @@ exports.getCommentsByReview = (req, res, next) => {
       err.review_id = review_id;
       next(err);
     });
+};
+
+exports.postComment = (req, res, next) => {
+  const { review_id } = req.params;
+  const { username, comment } = req.body;
+
+  Promise.all([
+    insertComment(review_id, comment, username),
+    selectReviewById(review_id),
+  ])
+    .then(([comment]) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      err.review_id = review_id;
+      next(err);
+    });
+
+  // insertComment(review_id, comment, username);
 };
