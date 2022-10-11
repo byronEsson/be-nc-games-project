@@ -56,5 +56,29 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  selectReviews();
+  const { category } = req.query;
+
+  const promises = [selectReviews(category)];
+
+  if (category) promises.push(selectCategories());
+
+  Promise.all(promises)
+    .then(([reviews, categories]) => {
+      let isACategory = true;
+      if (category) {
+        isACategory = false;
+        for (let i = 0; i < categories.length; i++) {
+          if (categories[i].slug === category) {
+            isACategory = true;
+            break;
+          }
+        }
+      }
+      if (isACategory) {
+        res.status(200).send({ reviews });
+      } else {
+        return Promise.reject({ status: 404, msg: "No such category" });
+      }
+    })
+    .catch((err) => next(err));
 };
