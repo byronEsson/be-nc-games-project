@@ -67,69 +67,6 @@ describe("/api", () => {
     });
   });
   describe("/reviews", () => {
-    describe("GET /api/reviews", () => {
-      test("200: responds with array of review objects sorted by date", () => {
-        return request(app)
-          .get("/api/reviews")
-          .expect(200)
-          .then(({ body: { reviews } }) => {
-            expect(reviews).toBeSortedBy("created_at", { descending: true });
-            expect(reviews.length).toBe(13);
-            expect(
-              reviews.forEach((review) => {
-                expect(review).toEqual(
-                  expect.objectContaining({
-                    owner: expect.any(String),
-                    title: expect.any(String),
-                    review_id: expect.any(Number),
-                    category: expect.any(String),
-                    review_img_url: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    designer: expect.any(String),
-                    comment_count: expect.any(Number),
-                  })
-                );
-              })
-            );
-          });
-      });
-      test("200: should accept a category query to filter reviews by category", () => {
-        return request(app)
-          .get("/api/reviews?category=social+deduction")
-          .expect(200)
-          .then(({ body: { reviews } }) => {
-            expect(reviews.length).toBe(11);
-            expect(
-              reviews.forEach((review) => {
-                expect(review).toEqual(
-                  expect.objectContaining({
-                    category: "social deduction",
-                  })
-                );
-              })
-            );
-          });
-      });
-      describe("Errors", () => {
-        test("404: responds with error when category does not exist", () => {
-          return request(app)
-            .get("/api/reviews?category=obscure+category")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("No such category");
-            });
-        });
-        test("200: should respond with empty array when category exists but has no reviews", () => {
-          return request(app)
-            .get("/api/reviews?category=children's+games")
-            .expect(200)
-            .then(({ body: { reviews } }) => {
-              expect(reviews).toEqual([]);
-            });
-        });
-      });
-    });
     describe("GET /api/reviews/:review_id", () => {
       test("200: respond with a review object", () => {
         return request(app)
@@ -181,6 +118,28 @@ describe("/api", () => {
               expect(msg).toBe("No review with that ID (9999)");
             });
         });
+      });
+    });
+
+    describe("GET /api/users", () => {
+      test("200: response object should have key of users with array of user objects", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users.length).toBe(4);
+            expect(
+              users.forEach((user) => {
+                expect(user).toEqual(
+                  expect.objectContaining({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String),
+                  })
+                );
+              })
+            );
+          });
       });
     });
     describe("PATCH api/reviews/:review_id", () => {
