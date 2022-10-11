@@ -39,3 +39,11 @@ exports.updateReview = (id, increment) => {
     return review;
   });
 };
+
+exports.selectReviews = (category) => {
+  const queryString = `SELECT * FROM reviews`;
+
+  return db.query(queryString).then(({ rows: reviews }) => {
+    return reviews;
+  });
+};

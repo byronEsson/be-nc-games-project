@@ -4,6 +4,7 @@ const {
   getReviewById,
   getUsers,
   patchReview,
+  getReviews,
 } = require("./controllers/controller");
 const app = express();
 
@@ -16,6 +17,8 @@ app.get("/api/reviews/:review_id", getReviewById);
 app.get("/api/users", getUsers);
 
 app.patch("/api/reviews/:review_id", patchReview);
+
+app.get("/api/reviews", getReviews);
 
 // ---ERRORS---
 

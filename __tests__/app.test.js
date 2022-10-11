@@ -155,4 +155,32 @@ describe("/api", () => {
       });
     });
   });
+  describe("GET /api/reviews", () => {
+    test("200: responds with array of review objects", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          expect(reviews.length).toBe(13);
+          expect(
+            reviews.forEach((review) => {
+              expect(review).toEqual(
+                expect.objectContaining({
+                  owner: expect.any(String),
+                  title: expect.any(String),
+                  review_id: expect.any(Number),
+                  category: expect.any(String),
+                  review_img_url: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  designer: expect.any(String),
+                  comment_count: expect.any(String),
+                })
+              );
+            })
+          );
+        });
+    });
+    test("should ", () => {});
+  });
 });
