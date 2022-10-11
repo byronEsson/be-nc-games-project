@@ -197,8 +197,8 @@ describe("/api", () => {
         .get("/api/reviews")
         .expect(200)
         .then(({ body: { reviews } }) => {
+          expect([1, 2, 3]).toBeSorted();
           expect(reviews.length).toBe(13);
-          expect(reviews).toBeSortedBy()
           expect(
             reviews.forEach((review) => {
               expect(review).toEqual(
