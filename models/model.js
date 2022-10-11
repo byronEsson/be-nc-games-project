@@ -45,8 +45,21 @@ exports.updateReview = (id, increment) => {
   });
 };
 
-exports.selectReviews = (query) => {
-  const queryString = `SELECT * FROM reviews`;
+exports.selectReviews = (category) => {
+  let queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews 
+  LEFT JOIN comments ON reviews.review_id=comments.review_id`;
+  const values = [];
+
+  if (category) {
+    queryString += ` WHERE category = $1`;
+    values.push(category);
+  }
+
+  queryString += ` GROUP BY reviews.review_id ORDER BY reviews.created_at DESC`;
+
+  return db.query(queryString, values).then(({ rows: reviews }) => {
+    return reviews;
+  });
 };
 
 exports.selectCommentsByReview = (id) => {
