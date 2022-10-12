@@ -6,6 +6,7 @@ const {
   selectReviews,
   selectCommentsByReview,
   insertComment,
+  removeComment,
 } = require("../models/model");
 
 exports.getController = (req, res, next) => {
@@ -26,6 +27,7 @@ exports.getReviewById = (req, res, next) => {
       res.status(200).send({ review });
     })
     .catch((err) => {
+      err.review_id = review_id;
       next(err);
     });
 };
@@ -116,6 +118,19 @@ exports.postComment = (req, res, next) => {
     })
     .catch((err) => {
       err.review_id = review_id;
+      next(err);
+    });
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  removeComment(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      err.comment_id = comment_id;
       next(err);
     });
 };

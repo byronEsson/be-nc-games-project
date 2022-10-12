@@ -100,3 +100,16 @@ exports.insertComment = (id, text, user) => {
     return comment;
   });
 };
+
+exports.removeComment = (id) => {
+  const queryString = `DELETE FROM comments WHERE comment_id=$1 RETURNING *`;
+
+  return db.query(queryString, [id]).then(({ rows: [comment] }) => {
+    if (!comment) {
+      return Promise.reject({
+        status: 404,
+        msg: `No content found for (comment_id)=(${id})`,
+      });
+    } else return;
+  });
+};
