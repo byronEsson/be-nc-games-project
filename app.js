@@ -9,6 +9,7 @@ const {
   getUsers,
   deleteComment,
   postCommentByReview,
+  getEndpoints,
 } = require("./controllers/index");
 const {
   pSQLErrorHandler,
@@ -17,6 +18,8 @@ const {
 } = require("./error-handlers");
 
 app.use(express.json());
+
+app.get("/api", getEndpoints);
 
 app.get("/api/categories", getCategories);
 
