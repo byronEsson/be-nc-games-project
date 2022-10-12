@@ -235,12 +235,33 @@ describe("/api", () => {
           );
         });
     });
-    test("200: should accept sort_by query", () => {
+    const columns = [
+      "created_at",
+      "owner",
+      "title",
+      "review_id",
+      "category",
+      "review_img_url",
+      "votes",
+      "designer",
+      "comment_count",
+    ];
+
+    test.each(columns)("200: should accept sort_by query", (column) => {
       return request(app)
-        .get("/api/reviews?sort_by=votes")
+        .get(`/api/reviews?sort_by=${column}`)
         .expect(200)
         .then(({ body: { reviews } }) => {
-          expect(reviews).toBeSortedBy("votes", { descending: true });
+          const spacesRemoved = reviews.map((review) => {
+            const newReview = { ...review };
+            if (isNaN(review[column])) {
+              newReview[column] = newReview[column].replace(" ", "");
+            }
+            return newReview;
+          });
+          expect(spacesRemoved).toBeSortedBy(`${column}`, {
+            descending: true,
+          });
         });
     });
     test("200: should accept order query", () => {
