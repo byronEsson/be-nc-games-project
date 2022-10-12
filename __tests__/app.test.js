@@ -25,28 +25,30 @@ describe("/api", () => {
       });
     });
   });
-  describe("GET /api/categories", () => {
-    test("200: response object should have key of categories with an array as of correct category objects", () => {
-      return request(app)
-        .get("/api/categories")
-        .expect(200)
-        .then(({ body: { categories } }) => {
-          expect(categories).toBeInstanceOf(Array);
-          expect(categories.length).toBe(4);
-          expect(
-            categories.forEach((category) => {
-              expect(category).toEqual(
-                expect.objectContaining({
-                  slug: expect.any(String),
-                  description: expect.any(String),
-                })
-              );
-            })
-          );
-        });
+  describe("/categories", () => {
+    describe("GET /api/categories", () => {
+      test("200: response object should have key of categories with an array as of correct category objects", () => {
+        return request(app)
+          .get("/api/categories")
+          .expect(200)
+          .then(({ body: { categories } }) => {
+            expect(categories).toBeInstanceOf(Array);
+            expect(categories.length).toBe(4);
+            expect(
+              categories.forEach((category) => {
+                expect(category).toEqual(
+                  expect.objectContaining({
+                    slug: expect.any(String),
+                    description: expect.any(String),
+                  })
+                );
+              })
+            );
+          });
+      });
     });
   });
-  describe("/api/reviews", () => {
+  describe("/reviews", () => {
     describe("GET /api/reviews", () => {
       test("200: responds with array of review objects sorted by date", () => {
         return request(app)
@@ -206,9 +208,7 @@ describe("/api", () => {
             .send(reqObj)
             .expect(400)
             .then(({ body: { msg } }) => {
-              expect(msg).toBe(
-                "Was expecting request object of the form {inc_votes: <integer>}"
-              );
+              expect(msg).toBe("Invalid post body - missing necessary keys");
             });
         });
         test("400: when passed id of invalid type", () => {
@@ -286,29 +286,108 @@ describe("/api", () => {
         });
       });
     });
-  });
-  describe("GET /api/users", () => {
-    test("200: response object should have key of users with array of user objects", () => {
-      return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body: { users } }) => {
-          expect(users.length).toBe(4);
-          expect(
-            users.forEach((user) => {
-              expect(user).toEqual(
-                expect.objectContaining({
-                  username: expect.any(String),
-                  name: expect.any(String),
-                  avatar_url: expect.any(String),
-                })
-              );
-            })
-          );
+    describe("POST /api/reviews/review_id/comments", () => {
+      test("201: should respond with new comment object", () => {
+        const postObj = {
+          username: "mallionaire",
+          comment: "something about games",
+        };
+
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .send(postObj)
+          .expect(201)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: 7,
+                author: "mallionaire",
+                votes: 0,
+                body: "something about games",
+                review_id: 1,
+                created_at: expect.any(String),
+              })
+            );
+          });
+      });
+      describe("Errors", () => {
+        test("400: responds with error when properties missing", () => {
+          const postObj = {};
+
+          return request(app)
+            .post("/api/reviews/1/comments")
+            .send(postObj)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid post body - missing necessary keys");
+            });
         });
+        test("400: when username not a valid user", () => {
+          const postObj = {
+            username: "notAUser",
+            comment: "something about games",
+          };
+          return request(app)
+            .post("/api/reviews/1/comments")
+            .send(postObj)
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No content found for (author)=(notAUser)");
+            });
+        });
+        test("400: when id not of correct type", () => {
+          const postObj = {
+            username: "mallionaire",
+            comment: "something about games",
+          };
+          return request(app)
+            .post("/api/reviews/nan/comments")
+            .send(postObj)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Incorrect datatype for review_id");
+            });
+        });
+        test("404: when id does not exist", () => {
+          const postObj = {
+            username: "mallionaire",
+            comment: "something about games",
+          };
+          return request(app)
+            .post("/api/reviews/9999/comments")
+            .send(postObj)
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No content found for (review_id)=(9999)");
+            });
+        });
+      });
     });
   });
-  describe("/api/comments", () => {
+  describe("/users", () => {
+    describe("GET /api/users", () => {
+      test("200: response object should have key of users with array of user objects", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users.length).toBe(4);
+            expect(
+              users.forEach((user) => {
+                expect(user).toEqual(
+                  expect.objectContaining({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String),
+                  })
+                );
+              })
+            );
+          });
+      });
+    });
+  });
+  describe("/comments", () => {
     describe("DELETE /api/comments/:comment_id", () => {
       test("204: should delete specified comment ", () => {
         return request(app)
@@ -317,6 +396,24 @@ describe("/api", () => {
           .then(({ body }) => {
             expect(body).toEqual({});
           });
+      });
+      describe("Errors", () => {
+        test("400: when invalid comment id", () => {
+          return request(app)
+            .delete("/api/comments/nan")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toEqual("Incorrect datatype for comment_id");
+            });
+        });
+        test("404: when no comment with that id in db", () => {
+          return request(app)
+            .delete("/api/comments/9999")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toEqual("No content found for (comment_id)=(9999)");
+            });
+        });
       });
     });
   });

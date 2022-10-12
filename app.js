@@ -7,6 +7,7 @@ const {
   getReviews,
   getCommentsByReview,
   deleteComment,
+  postComment,
 } = require("./controllers/controller");
 const app = express();
 
@@ -25,6 +26,7 @@ app.get("/api/reviews", getReviews);
 app.get("/api/reviews/:review_id/comments", getCommentsByReview);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+app.post("/api/reviews/:review_id/comments", postComment);
 
 // ---ERRORS---
 
@@ -35,21 +37,25 @@ app.all("*", (req, res) => {
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
     let addToError = "";
-    if (req.method === "GET") addToError = " for review_id";
-
-    if (req.method === "PATCH" && isNaN(err.review_id)) {
+    // if (req.method === "GET") addToError = " for review_id";
+    //req.method === "PATCH" &&
+    if (isNaN(err.review_id) && err.review_id !== undefined) {
       addToError = " for review_id";
       //
     } else if (req.method === "PATCH") {
       addToError = " for inc_votes";
+    } else if (isNaN(err.comment_id)) {
+      addToError = " for comment_id";
     }
-
     res.status(400).send({ msg: `Incorrect datatype${addToError}` });
     //
   } else if (err.code === "23502") {
     res.status(400).send({
-      msg: "Was expecting request object of the form {inc_votes: <integer>}",
+      msg: "Invalid post body - missing necessary keys",
     });
+  } else if (err.code === "23503") {
+    const forErr = err.detail.split(" ");
+    res.status(404).send({ msg: `No content found for ${forErr[1]}` });
   } else next(err);
 });
 

@@ -5,6 +5,7 @@ const {
   updateReview,
   selectReviews,
   selectCommentsByReview,
+  insertComment,
   removeComment,
 } = require("../models/model");
 
@@ -26,6 +27,7 @@ exports.getReviewById = (req, res, next) => {
       res.status(200).send({ review });
     })
     .catch((err) => {
+      err.review_id = review_id;
       next(err);
     });
 };
@@ -58,9 +60,9 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  const { category } = req.query;
+  const { category, sort_by, order } = req.query;
 
-  const promises = [selectReviews(category)];
+  const promises = [selectReviews(category, sort_by, order)];
 
   if (category) promises.push(selectCategories());
 
@@ -103,10 +105,32 @@ exports.getCommentsByReview = (req, res, next) => {
     });
 };
 
+exports.postComment = (req, res, next) => {
+  const { review_id } = req.params;
+  const { username, comment } = req.body;
+
+  Promise.all([
+    insertComment(review_id, comment, username),
+    selectReviewById(review_id),
+  ])
+    .then(([comment]) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      err.review_id = review_id;
+      next(err);
+    });
+};
+
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
 
-  removeComment(comment_id).then(() => {
-    res.status(204).send();
-  });
+  removeComment(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      err.comment_id = comment_id;
+      next(err);
+    });
 };
