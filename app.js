@@ -37,8 +37,6 @@ app.all("*", (req, res) => {
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
     let addToError = "";
-    // if (req.method === "GET") addToError = " for review_id";
-    //req.method === "PATCH" &&
     if (isNaN(err.review_id) && err.review_id !== undefined) {
       addToError = " for review_id";
       //
