@@ -1,23 +1,11 @@
 const {
-  selectCategories,
   selectReviewById,
-  selectUsers,
   updateReview,
   selectReviews,
   selectCommentsByReview,
+  selectCategories,
   insertComment,
-  removeComment,
-} = require("../models/model");
-
-exports.getController = (req, res, next) => {
-  selectCategories()
-    .then((categories) => {
-      res.status(200).send({ categories });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+} = require("../models/index");
 
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params;
@@ -28,16 +16,6 @@ exports.getReviewById = (req, res, next) => {
     })
     .catch((err) => {
       err.review_id = review_id;
-      next(err);
-    });
-};
-
-exports.getUsers = (req, res, next) => {
-  selectUsers()
-    .then((users) => {
-      res.status(200).send({ users });
-    })
-    .catch((err) => {
       next(err);
     });
 };
@@ -105,7 +83,7 @@ exports.getCommentsByReview = (req, res, next) => {
     });
 };
 
-exports.postComment = (req, res, next) => {
+exports.postCommentByReview = (req, res, next) => {
   const { review_id } = req.params;
   const { username, comment } = req.body;
 
@@ -118,19 +96,6 @@ exports.postComment = (req, res, next) => {
     })
     .catch((err) => {
       err.review_id = review_id;
-      next(err);
-    });
-};
-
-exports.deleteComment = (req, res, next) => {
-  const { comment_id } = req.params;
-
-  removeComment(comment_id)
-    .then(() => {
-      res.status(204).send();
-    })
-    .catch((err) => {
-      err.comment_id = comment_id;
       next(err);
     });
 };

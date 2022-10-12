@@ -1,13 +1,5 @@
 const db = require("../db/connection");
 
-exports.selectCategories = () => {
-  const queryString = `SELECT * FROM categories`;
-
-  return db.query(queryString).then(({ rows: categories }) => {
-    return categories;
-  });
-};
-
 exports.selectReviewById = (reviewId) => {
   const queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews 
   LEFT JOIN comments ON reviews.review_id=comments.review_id WHERE reviews.review_id = $1
@@ -22,14 +14,6 @@ exports.selectReviewById = (reviewId) => {
       });
     }
     return review;
-  });
-};
-
-exports.selectUsers = () => {
-  const queryString = `SELECT * FROM users`;
-
-  return db.query(queryString).then(({ rows: users }) => {
-    return users;
   });
 };
 
@@ -90,26 +74,5 @@ exports.selectCommentsByReview = (id) => {
 
   return db.query(queryString, [id]).then(({ rows: comments }) => {
     return comments;
-  });
-};
-
-exports.insertComment = (id, text, user) => {
-  const queryString = `INSERT INTO comments (review_id, body, author) VALUES ($1, $2, $3) RETURNING *`;
-
-  return db.query(queryString, [id, text, user]).then(({ rows: [comment] }) => {
-    return comment;
-  });
-};
-
-exports.removeComment = (id) => {
-  const queryString = `DELETE FROM comments WHERE comment_id=$1 RETURNING *`;
-
-  return db.query(queryString, [id]).then(({ rows: [comment] }) => {
-    if (!comment) {
-      return Promise.reject({
-        status: 404,
-        msg: `No content found for (comment_id)=(${id})`,
-      });
-    } else return;
   });
 };
