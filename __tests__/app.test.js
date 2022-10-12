@@ -235,32 +235,103 @@ describe("/api", () => {
           );
         });
     });
-    describe("Errors", () => {
-      test("404: responds with error when category does not exist", () => {
-        return request(app)
-          .get("/api/reviews?category=obscure+category")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("No such category");
+    const columns = [
+      "created_at",
+      "owner",
+      "title",
+      "review_id",
+      "category",
+      "review_img_url",
+      "votes",
+      "designer",
+      "comment_count",
+    ];
+
+    test.each(columns)("200: should accept sort_by query", (column) => {
+      return request(app)
+        .get(`/api/reviews?sort_by=${column}`)
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          const spacesRemoved = reviews.map((review) => {
+            const newReview = { ...review };
+            if (isNaN(review[column])) {
+              newReview[column] = newReview[column].replace(" ", "");
+            }
+            return newReview;
           });
-      });
-      test("200: should respond with empty array when category exists but has no reviews", () => {
-        return request(app)
-          .get("/api/reviews?category=children's+games")
-          .expect(200)
-          .then(({ body: { reviews } }) => {
-            expect(reviews).toEqual([]);
+          expect(spacesRemoved).toBeSortedBy(`${column}`, {
+            descending: true,
           });
-      });
+        });
+    });
+    test("200: should accept order query", () => {
+      return request(app)
+        .get("/api/reviews?order=asc")
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          expect(reviews).toBeSortedBy("created_at", { ascending: true });
+        });
+    });
+    test("200: queries can be used together", () => {
+      return request(app)
+        .get("/api/reviews/?order=asc&sort_by=votes&category=social+deduction")
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          expect(reviews).toHaveLength(11);
+          expect(reviews).toBeSortedBy("votes", { ascending: true });
+          expect(
+            reviews.forEach((review) => {
+              expect(review).toEqual(
+                expect.objectContaining({
+                  category: "social deduction",
+                })
+              );
+            })
+          );
+        });
     });
   });
+  describe("Errors", () => {
+    test("404: responds with error when category does not exist", () => {
+      return request(app)
+        .get("/api/reviews?category=obscure+category")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("No such category");
+        });
+    });
+    test("200: should respond with empty array when category exists but has no reviews", () => {
+      return request(app)
+        .get("/api/reviews?category=children's+games")
+        .expect(200)
+        .then(({ body: { reviews } }) => {
+          expect(reviews).toEqual([]);
+        });
+    });
+    test("400: when order query invalid", () => {
+      return request(app)
+        .get("/api/reviews?order=notAscOrDesc")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Query order must be asc or desc");
+        });
+    });
+    test("400: when sort_by query invalid", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=notAColumn")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Invalid column to sort by");
+        });
+    });
+  });
+
   describe("GET /api/reviews/:review_id/comments", () => {
     test("200: should respond with array of comments objects sorted by date", () => {
       return request(app)
         .get("/api/reviews/2/comments")
         .expect(200)
         .then(({ body: { comments } }) => {
-          console.log(comments);
           expect(comments).toHaveLength(3);
           expect(comments).toBeSortedBy("created_at", { descending: true });
           expect(
