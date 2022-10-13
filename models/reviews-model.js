@@ -28,10 +28,13 @@ exports.updateReview = (id, increment) => {
   });
 };
 
-exports.selectReviews = (category, sort_by = "created_at", order = `desc`) => {
-  let queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews 
-  LEFT JOIN comments ON reviews.review_id=comments.review_id`;
-
+exports.selectReviews = ({
+  category,
+  sort_by = "created_at",
+  order = `desc`,
+  limit,
+  page = 1,
+}) => {
   const columns = [
     "created_at",
     "owner",
@@ -56,13 +59,20 @@ exports.selectReviews = (category, sort_by = "created_at", order = `desc`) => {
   }
 
   const values = [];
+  let queryString = `SELECT reviews.*, COUNT(body) ::INT AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id=comments.review_id`;
 
   if (category) {
-    values.push(category);
     queryString += ` WHERE category = $1`;
+    values.push(category);
   }
 
   queryString += ` GROUP BY reviews.review_id ORDER BY ${sort_by} ${order}`;
+
+  if (limit) {
+    values.push(limit);
+    values.push(limit * (page - 1));
+    queryString += ` LIMIT $${values.length - 1} OFFSET $${values.length}`;
+  }
 
   return db.query(queryString, values).then(({ rows: reviews }) => {
     return reviews;

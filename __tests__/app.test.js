@@ -400,6 +400,40 @@ describe("/api", () => {
             });
         });
       });
+      describe("FEATURE pagination", () => {
+        test("200: should accept a limit query", () => {
+          return request(app)
+            .get("/api/reviews?limit=5")
+            .expect(200)
+            .then(({ body: { reviews } }) => {
+              expect(reviews).toHaveLength(5);
+            });
+        });
+        test("200: should accept a page query when used with limit", () => {
+          const firstPage = request(app).get(
+            "/api/reviews?sort_by=review_id&limit=5&page=1"
+          );
+
+          const secondPage = request(app).get(
+            "/api/reviews?sort_by=review_id&limit=5&page=2"
+          );
+
+          return Promise.all([firstPage, secondPage]).then(
+            ([
+              {
+                body: { reviews: reviews1 },
+              },
+              {
+                body: { reviews: reviews2 },
+              },
+            ]) => {
+              expect(reviews1).not.toEqual(reviews2);
+              expect(reviews1[0].review_id).toBe(13);
+              expect(reviews2[0].review_id).toBe(8);
+            }
+          );
+        });
+      });
     });
   });
   describe("/users", () => {

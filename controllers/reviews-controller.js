@@ -39,9 +39,9 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  const { category, sort_by, order } = req.query;
+  const { category } = req.query;
 
-  const promises = [selectReviews(category, sort_by, order)];
+  const promises = [selectReviews(req.query)];
 
   if (category) promises.push(selectCategories());
 
