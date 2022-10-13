@@ -77,3 +77,12 @@ exports.selectCommentsByReview = (id) => {
   });
 };
 
+exports.insertReview = ({ owner, title, review_body, designer, category }) => {
+  const values = [owner, title, review_body, designer, category];
+  const queryString = `INSERT INTO reviews (owner, title, review_body, designer, category)
+  VALUES ($1, $2, $3, $4, $5) RETURNING review_id`;
+
+  return db.query(queryString, values).then(({ rows: [id] }) => {
+    return id;
+  });
+};

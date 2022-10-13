@@ -185,7 +185,7 @@ describe("/api", () => {
             .send(reqObj)
             .expect(400)
             .then(({ body: { msg } }) => {
-              expect(msg).toBe("Invalid post body - missing necessary keys");
+              expect(msg).toBe("Invalid request body - missing necessary keys");
             });
         });
         test("400: when passed id of invalid type", () => {
@@ -296,7 +296,7 @@ describe("/api", () => {
             .send(postObj)
             .expect(400)
             .then(({ body: { msg } }) => {
-              expect(msg).toBe("Invalid post body - missing necessary keys");
+              expect(msg).toBe("Invalid request body - missing necessary keys");
             });
         });
         test("400: when username not a valid user", () => {
@@ -336,6 +336,67 @@ describe("/api", () => {
             .expect(404)
             .then(({ body: { msg } }) => {
               expect(msg).toBe("No content found for (review_id)=(9999)");
+            });
+        });
+      });
+    });
+    describe("POST /api/reviews", () => {
+      test("201: should respond with newly created review", () => {
+        const postObj = {
+          owner: "mallionaire",
+          title: "this is a review",
+          review_body: "something about the game",
+          designer: "Someone Really Cool",
+          category: "dexterity",
+        };
+
+        return request(app)
+          .post("/api/reviews")
+          .send(postObj)
+          .expect(201)
+          .then(({ body: { review } }) => {
+            expect(review).toEqual(
+              expect.objectContaining({
+                owner: "mallionaire",
+                title: "this is a review",
+                review_body: "something about the game",
+                designer: "Someone Really Cool",
+                category: "dexterity",
+                review_id: 14,
+                votes: 0,
+                review_img_url:
+                  "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
+                created_at: expect.any(String),
+                comment_count: 0,
+              })
+            );
+          });
+      });
+      describe("Errors", () => {
+        test("400: when response object badly formatted", () => {
+          return request(app)
+            .post("/api/reviews")
+            .send({})
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid request body - missing necessary keys");
+            });
+        });
+        test("404: when user not in db", () => {
+          const postObj = {
+            owner: "notauser",
+            title: "this is a review",
+            review_body: "something about the game",
+            designer: "Someone Really Cool",
+            category: "dexterity",
+          };
+
+          return request(app)
+            .post("/api/reviews")
+            .send(postObj)
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No content found for (owner)=(notauser)");
             });
         });
       });
@@ -413,7 +474,69 @@ describe("/api", () => {
             .delete("/api/comments/9999")
             .expect(404)
             .then(({ body: { msg } }) => {
-              expect(msg).toEqual("No content found for (comment_id)=(9999)");
+              expect(msg).toEqual("No content found for comment_id=9999");
+            });
+        });
+      });
+    });
+    describe("PATCH /api/comments/:comment_id", () => {
+      test("200: should increment votes by specified value", () => {
+        const reqObj = { inc_votes: 2 };
+
+        return request(app)
+          .patch("/api/comments/1")
+          .send(reqObj)
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                votes: 18,
+              })
+            );
+          });
+      });
+      describe("Errors", () => {
+        test("400: when incorrect datatype for id", () => {
+          const reqObj = { inc_votes: 2 };
+
+          return request(app)
+            .patch("/api/comments/nan")
+            .send(reqObj)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Incorrect datatype for comment_id");
+            });
+        });
+        test("404: when comment does not exist", () => {
+          const reqObj = { inc_votes: 2 };
+
+          return request(app)
+            .patch("/api/comments/9999")
+            .send(reqObj)
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No content found for comment_id=9999");
+            });
+          post;
+        });
+        test("400: when inc_votes incorrect datatype", () => {
+          const reqObj = { inc_votes: "nan" };
+
+          return request(app)
+            .patch("/api/comments/1")
+            .send(reqObj)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Incorrect datatype for inc_votes");
+            });
+        });
+        test("400: when inc_votes missing", () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({})
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid request body - missing necessary keys");
             });
         });
       });
