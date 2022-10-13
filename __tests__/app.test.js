@@ -363,6 +363,31 @@ describe("/api", () => {
           });
       });
     });
+    describe("GET /api/users/:username", () => {
+      test("200: should respond with single user object", () => {
+        return request(app)
+          .get("/api/users/mallionaire")
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              username: "mallionaire",
+              name: "haz",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+            });
+          });
+      });
+      describe("Errors", () => {
+        test("404: when no user with that username", () => {
+          return request(app)
+            .get("/api/users/notauser")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No user with that username");
+            });
+        });
+      });
+    });
   });
   describe("/comments", () => {
     describe("DELETE /api/comments/:comment_id", () => {
