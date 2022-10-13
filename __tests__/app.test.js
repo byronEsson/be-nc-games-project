@@ -12,6 +12,25 @@ afterAll(() => {
 });
 
 describe("/api", () => {
+  test("200: responds with object of available endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body: { endpoints } }) => {
+        expect(endpoints).toEqual(
+          expect.objectContaining({
+            "GET /api": expect.any(Object),
+            "GET /api/reviews": expect.any(Object),
+            "GET /api/reviews/:review_id": expect.any(Object),
+            "PATCH /api/reviews/:review_id": expect.any(Object),
+            "GET /api/reviews/:review_id/comments": expect.any(Object),
+            "POST /api/reviews/:review_id/comments": expect.any(Object),
+            "GET /api/users": expect.any(Object),
+            "DELETE /api/comments/:comment_id": expect.any(Object),
+          })
+        );
+      });
+  });
   describe("General Errors", () => {
     describe("404: Not Found", () => {
       test("404: response when given bad path", () => {
