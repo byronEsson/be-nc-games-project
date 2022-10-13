@@ -33,7 +33,7 @@ exports.selectReviews = ({
   sort_by = "created_at",
   order = `desc`,
   limit,
-  page = 1,
+  p = 1,
 }) => {
   const columns = [
     "created_at",
@@ -70,7 +70,7 @@ exports.selectReviews = ({
 
   if (limit) {
     values.push(limit);
-    values.push(limit * (page - 1));
+    values.push(limit * (p - 1));
     queryString += ` LIMIT $${values.length - 1} OFFSET $${values.length}`;
   }
 

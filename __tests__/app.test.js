@@ -411,11 +411,11 @@ describe("/api", () => {
         });
         test("200: should accept a page query when used with limit", () => {
           const firstPage = request(app).get(
-            "/api/reviews?sort_by=review_id&limit=5&page=1"
+            "/api/reviews?sort_by=review_id&limit=5&p=1"
           );
 
           const secondPage = request(app).get(
-            "/api/reviews?sort_by=review_id&limit=5&page=2"
+            "/api/reviews?sort_by=review_id&limit=5&p=2"
           );
 
           return Promise.all([firstPage, secondPage]).then(
