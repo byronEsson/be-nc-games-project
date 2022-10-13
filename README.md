@@ -1,6 +1,6 @@
 ## Byron's Backend Project
 
-https://byrons-backend-project.herokuapp.com/api/categories
+https://byrons-backend-project.herokuapp.com/
 
 ### To Use This Repo
 

@@ -19,7 +19,7 @@ const {
 
 app.use(express.json());
 
-app.get("/", () => {
+app.all("/", () => {
   res.status(200).send({ greeting: "Hello there" });
 });
 
