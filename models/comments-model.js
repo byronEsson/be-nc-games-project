@@ -14,8 +14,22 @@ exports.removeComment = (id) => {
     if (!comment) {
       return Promise.reject({
         status: 404,
-        msg: `No content found for (comment_id)=(${id})`,
+        msg: `No content found for comment_id=${id}`,
       });
     } else return;
+  });
+};
+
+exports.updateCommentById = (id, votes) => {
+  const queryString = `UPDATE comments SET votes = votes+$1 WHERE comment_id = $2 RETURNING *`;
+
+  return db.query(queryString, [votes, id]).then(({ rows: [comment] }) => {
+    if (!comment) {
+      return Promise.reject({
+        status: 404,
+        msg: `No content found for comment_id=${id}`,
+      });
+    }
+    return comment;
   });
 };
