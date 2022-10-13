@@ -19,6 +19,10 @@ const {
 
 app.use(express.json());
 
+app.get("/", () => {
+  res.status(200).send({ greeting: "Hello there" });
+});
+
 app.get("/api", getEndpoints);
 
 app.get("/api/categories", getCategories);
