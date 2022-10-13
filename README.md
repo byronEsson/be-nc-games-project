@@ -20,6 +20,8 @@ To install dependencies, run `npm install`.
 
 The data used in this project are found in `/db/data`. To seed this data you will first need to create two separate .env files, `.env.test` and `.env.development` in the root of this repo. Into each, add `PGDATABASE=<database_name_here>`, with the correct database name for that environment (see `/db/setup.sql` for the database names). Add these filenames to the .gitignore file to ensure they aren't pushed to GitHub.
 
+Run `npm setup-dbs` to create the SQL databases followed by `npm seed` to seed the `devlopment` data.
+
 ### Testing
 
 Tests are run with the command `npm test` or `npm t` to run all commands or append the file name of the test suite to run only that. Test suites and their files are found in the `__tests__` folder.
