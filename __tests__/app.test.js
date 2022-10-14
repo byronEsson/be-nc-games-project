@@ -247,27 +247,6 @@ describe("/api", () => {
       });
     });
 
-    describe("GET /api/users", () => {
-      test("200: response object should have key of users with array of user objects", () => {
-        return request(app)
-          .get("/api/users")
-          .expect(200)
-          .then(({ body: { users } }) => {
-            expect(users.length).toBe(4);
-            expect(
-              users.forEach((user) => {
-                expect(user).toEqual(
-                  expect.objectContaining({
-                    username: expect.any(String),
-                    name: expect.any(String),
-                    avatar_url: expect.any(String),
-                  })
-                );
-              })
-            );
-          });
-      });
-    });
     describe("PATCH api/reviews/:review_id", () => {
       test("200: responds with updated review object", () => {
         const reqObj = { inc_votes: 2 };
