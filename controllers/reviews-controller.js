@@ -39,7 +39,7 @@ exports.patchReview = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  const { category } = req.query;
+  const { category, limit, p } = req.query;
 
   const promises = [selectReviews(req.query)];
 
@@ -63,7 +63,11 @@ exports.getReviews = (req, res, next) => {
         return Promise.reject({ status: 404, msg: "No such category" });
       }
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      err.limit = limit;
+      err.p = p;
+      next(err);
+    });
 };
 
 exports.getCommentsByReview = (req, res, next) => {

@@ -75,6 +75,9 @@ exports.selectReviews = ({
   }
 
   return db.query(queryString, values).then(({ rows: reviews }) => {
+    if (limit && reviews.length === 0) {
+      return Promise.reject({ status: 404, msg: `No content found on p${p}` });
+    }
     return reviews;
   });
 };

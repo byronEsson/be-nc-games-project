@@ -433,6 +433,36 @@ describe("/api", () => {
             }
           );
         });
+        describe("Errors", () => {
+          test("400: when limit of incorrect datatype", () => {
+            return request(app)
+              .get("/api/reviews?limit=nan")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for limit");
+              });
+          });
+          test("400: when page not of correct datatype", () => {
+            return request(app)
+              .get("/api/reviews?p=nan&limit=5")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for page");
+              });
+          });
+          test("404: when page with no data", () => {
+            return request(app)
+              .get("/api/reviews?p=9999&limit=5")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("No content found on p9999");
+              });
+            
+          })
+            test('200: ignores page when no limit', () => {
+              return request(app)
+            });;
+        });
       });
     });
   });

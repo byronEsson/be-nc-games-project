@@ -8,6 +8,10 @@ exports.pSQLErrorHandler = (err, req, res, next) => {
       addToError = " for comment_id";
     } else if (req.method === "PATCH") {
       addToError = " for inc_votes";
+    } else if (isNaN(err.limit) && err.limit) {
+      addToError = " for limit";
+    } else if (isNaN(err.p) && err.p) {
+      addToError = " for page";
     }
     res.status(400).send({ msg: `Incorrect datatype${addToError}` });
     //
