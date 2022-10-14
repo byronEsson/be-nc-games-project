@@ -162,6 +162,14 @@ describe("/api", () => {
             }
           );
         });
+        test("200: response object should have total count property", () => {
+          return request(app)
+            .get("/api/reviews?category=social+deduction")
+            .expect(200)
+            .then(({ body: { total_count } }) => {
+              expect(total_count).toBe(11);
+            });
+        });
         describe("Errors", () => {
           test("400: when limit of incorrect datatype", () => {
             return request(app)
@@ -193,6 +201,14 @@ describe("/api", () => {
               .expect(200)
               .then(({ body: { reviews } }) => {
                 expect(reviews.length).toBe(13);
+              });
+          });
+          test("200: total_count property ignores limit", () => {
+            return request(app)
+              .get("/api/reviews?category=social+deduction&limit=5")
+              .expect(200)
+              .then(({ body: { total_count } }) => {
+                expect(total_count).toBe(11);
               });
           });
         });

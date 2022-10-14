@@ -58,7 +58,15 @@ exports.getReviews = (req, res, next) => {
         }
       }
       if (isACategory) {
-        res.status(200).send({ reviews });
+        let total_count = 0;
+        if (!reviews[0]) {
+          total_count = 0;
+        } else {
+          total_count = reviews[0].total_count;
+          reviews.forEach((review) => delete review.total_count);
+        }
+
+        res.status(200).send({ reviews, total_count });
       } else {
         return Promise.reject({ status: 404, msg: "No such category" });
       }
