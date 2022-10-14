@@ -188,7 +188,12 @@ describe("/api", () => {
               });
           });
           test("200: ignores page when no limit", () => {
-            // return request(app);
+            return request(app)
+              .get("/api/reviews?p=2")
+              .expect(200)
+              .then(({ body: { reviews } }) => {
+                expect(reviews.length).toBe(13);
+              });
           });
         });
       });
@@ -246,7 +251,6 @@ describe("/api", () => {
         });
       });
     });
-
     describe("PATCH api/reviews/:review_id", () => {
       test("200: responds with updated review object", () => {
         const reqObj = { inc_votes: 2 };
