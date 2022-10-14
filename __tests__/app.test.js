@@ -65,6 +65,26 @@ describe("/api", () => {
           });
       });
     });
+    describe("POST /api/categories", () => {
+      test("201: responds with newly created category object", () => {
+        const reqObj = {
+          slug: "not slimy",
+          description: "not the animal",
+        };
+
+        return request(app)
+          .post("/api/categories")
+          .send(reqObj)
+          .expect(201)
+          .then(({ body: { category } }) => {
+            expect(category).toEqual({
+              slug: "not slimy",
+              description: "not the animal",
+              category_id: 5,
+            });
+          });
+      });
+    });
   });
   describe("/reviews", () => {
     describe("GET /api/reviews", () => {
@@ -72,9 +92,9 @@ describe("/api", () => {
         return request(app)
           .get("/api/reviews")
           .expect(200)
-          .then(({ body: { reviews } }) => {
+          .then(({ body: { reviews, total_count } }) => {
             expect(reviews).toBeSortedBy("created_at", { descending: true });
-            expect(reviews.length).toBe(13);
+            expect(total_count).toBe(13);
             expect(
               reviews.forEach((review) => {
                 expect(review).toEqual(
@@ -98,8 +118,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/reviews?category=social+deduction")
           .expect(200)
-          .then(({ body: { reviews } }) => {
-            expect(reviews.length).toBe(11);
+          .then(({ body: { reviews, total_count } }) => {
+            expect(total_count).toBe(11);
             expect(
               reviews.forEach((review) => {
                 expect(review).toEqual(
@@ -193,14 +213,6 @@ describe("/api", () => {
               .expect(404)
               .then(({ body: { msg } }) => {
                 expect(msg).toBe("No content found on p9999");
-              });
-          });
-          test("200: ignores page when no limit", () => {
-            return request(app)
-              .get("/api/reviews?p=2")
-              .expect(200)
-              .then(({ body: { reviews } }) => {
-                expect(reviews.length).toBe(13);
               });
           });
           test("200: total_count property ignores limit", () => {
@@ -385,6 +397,82 @@ describe("/api", () => {
             .then(({ body: { comments } }) => {
               expect(comments).toEqual([]);
             });
+        });
+      });
+      describe("FEATURE pagination", () => {
+        test("200: should accept a limit query", () => {
+          return request(app)
+            .get("/api/reviews/2/comments?limit=2")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+              expect(comments).toHaveLength(2);
+            });
+        });
+        test("200: should accept a page query", () => {
+          const firstPage = request(app).get(
+            "/api/reviews/2/comments?limit=1&p=1"
+          );
+
+          const secondPage = request(app).get(
+            "/api/reviews/2/comments?limit=1&p=2"
+          );
+
+          return Promise.all([firstPage, secondPage]).then(
+            ([
+              {
+                body: { comments: comments1 },
+              },
+              {
+                body: { comments: comments2 },
+              },
+            ]) => {
+              expect(comments1).not.toEqual(comments2);
+              expect(comments1[0].comment_id).toBe(5);
+              expect(comments2[0].comment_id).toBe(1);
+            }
+          );
+        });
+        test("200: response object should have total count property", () => {
+          return request(app)
+            .get("/api/reviews/2/comments")
+            .expect(200)
+            .then(({ body: { total_count } }) => {
+              expect(total_count).toBe(3);
+            });
+        });
+        describe("Errors", () => {
+          test("400: when limit of incorrect datatype", () => {
+            return request(app)
+              .get("/api/reviews/2/comments?limit=nan")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for limit");
+              });
+          });
+          test("400: when page not of correct datatype", () => {
+            return request(app)
+              .get("/api/reviews/2/comments?p=nan&limit=5")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for page");
+              });
+          });
+          test("404: when page with no data", () => {
+            return request(app)
+              .get("/api/reviews/2/comments?p=9999&limit=5")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("No comments found on p9999");
+              });
+          });
+          test("200: total_count property ignores limit", () => {
+            return request(app)
+              .get("/api/reviews/2/comments?limit=1")
+              .expect(200)
+              .then(({ body: { total_count } }) => {
+                expect(total_count).toBe(3);
+              });
+          });
         });
       });
     });

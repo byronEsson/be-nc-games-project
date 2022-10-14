@@ -32,7 +32,7 @@ exports.selectReviews = ({
   category,
   sort_by = "created_at",
   order = `desc`,
-  limit,
+  limit = 10,
   p = 1,
 }) => {
   const columns = [
@@ -65,28 +65,28 @@ exports.selectReviews = ({
     queryString += ` WHERE category = $1`;
     values.push(category);
   }
-
-  queryString += ` GROUP BY reviews.review_id ORDER BY ${sort_by} ${order}`;
-
-  if (limit) {
-    values.push(limit);
-    values.push(limit * (p - 1));
-    queryString += ` LIMIT $${values.length - 1} OFFSET $${values.length}`;
-  }
+  values.push(limit);
+  values.push(limit * (p - 1));
+  queryString += ` GROUP BY reviews.review_id ORDER BY ${sort_by} ${order}
+   LIMIT $${values.length - 1} OFFSET $${values.length}`;
 
   return db.query(queryString, values).then(({ rows: reviews }) => {
-    if (limit && reviews.length === 0) {
+    if (reviews.length === 0 && p !== 1) {
       return Promise.reject({ status: 404, msg: `No content found on p${p}` });
     }
-  
+
     return reviews;
   });
 };
 
-exports.selectCommentsByReview = (id) => {
-  const queryString = `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC`;
+exports.selectCommentsByReview = (id, { limit = 10, p = 1 }) => {
+  const queryString = `SELECT * , COUNT(*) OVER() ::INT AS total_count FROM comments WHERE review_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`;
 
-  return db.query(queryString, [id]).then(({ rows: comments }) => {
+  const values = [id, limit, limit * (p - 1)];
+  return db.query(queryString, values).then(({ rows: comments }) => {
+    if (comments.length === 0 && p !== 1) {
+      return Promise.reject({ status: 404, msg: `No comments found on p${p}` });
+    }
     return comments;
   });
 };

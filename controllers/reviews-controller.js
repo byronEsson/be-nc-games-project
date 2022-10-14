@@ -80,17 +80,28 @@ exports.getReviews = (req, res, next) => {
 
 exports.getCommentsByReview = (req, res, next) => {
   const { review_id } = req.params;
-
+  const { limit, p } = req.query;
   const promises = [
-    selectCommentsByReview(review_id),
+    selectCommentsByReview(review_id, req.query),
     selectReviewById(review_id),
   ];
 
   Promise.all(promises)
     .then(([comments]) => {
-      res.status(200).send({ comments });
+      let total_count = 0;
+      if (!comments[0]) {
+        total_count = 0;
+      } else {
+        total_count = comments[0].total_count;
+        comments.forEach((comment) => delete comment.total_count);
+      }
+
+      
+      res.status(200).send({ comments, total_count });
     })
     .catch((err) => {
+      err.p = p;
+      err.limit = limit;
       err.review_id = review_id;
       next(err);
     });
