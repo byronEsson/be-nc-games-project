@@ -638,6 +638,24 @@ describe("/api", () => {
             expect(body).toEqual({});
           });
       });
+      describe("Errors", () => {
+        test("400: when id of incorrect type", () => {
+          return request(app)
+            .delete("/api/reviews/nan")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Incorrect datatype for review_id");
+            });
+        });
+        test("404: responds with error when id not in db", () => {
+          return request(app)
+            .delete("/api/reviews/9999")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No review with that ID (9999)");
+            });
+        });
+      });
     });
   });
   describe("/users", () => {

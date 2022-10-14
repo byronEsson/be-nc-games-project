@@ -100,3 +100,16 @@ exports.insertReview = ({ owner, title, review_body, designer, category }) => {
     return id;
   });
 };
+
+exports.removeReviewById = (id) => {
+  const queryString = `DELETE FROM reviews WHERE review_id=$1 RETURNING *`;
+
+  return db.query(queryString, [id]).then(({ rows: [comment] }) => {
+    if (!comment) {
+      return Promise.reject({
+        status: 404,
+        msg: `No review with that ID (${id})`,
+      });
+    }
+  });
+};
