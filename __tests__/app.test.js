@@ -80,9 +80,24 @@ describe("/api", () => {
             expect(category).toEqual({
               slug: "not slimy",
               description: "not the animal",
-              category_id: 5,
             });
           });
+      });
+      describe("Errors", () => {
+        test("400: badly formatted request body", () => {
+          const reqObj = {
+            snail: "not slug",
+            description: "it has a shell",
+          };
+
+          return request(app)
+            .post("/api/categories")
+            .send(reqObj)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid request body - missing necessary keys");
+            });
+        });
       });
     });
   });
@@ -612,6 +627,16 @@ describe("/api", () => {
               expect(msg).toBe("No content found for (owner)=(notauser)");
             });
         });
+      });
+    });
+    describe("DELETE /api/reviews/:review_id", () => {
+      test("204: should delete specified review", () => {
+        return request(app)
+          .delete("/api/reviews/1")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).toEqual({});
+          });
       });
     });
   });

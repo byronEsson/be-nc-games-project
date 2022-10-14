@@ -7,3 +7,13 @@ exports.selectCategories = () => {
     return categories;
   });
 };
+
+exports.insertCategory = ({ slug, description }) => {
+  const queryString = `INSERT INTO categories (slug, description) VALUES ($1, $2) RETURNING *`;
+
+  return db
+    .query(queryString, [slug, description])
+    .then(({ rows: [category] }) => {
+      return category;
+    });
+};
