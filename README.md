@@ -1,10 +1,10 @@
 ## Byron's Backend Project
 
-https://byrons-backend-project.herokuapp.com/
+https://byrons-backend-project.herokuapp.com/api
 
 This is a solo project completed during my time at Northcoders.
 
-I have built an API in order to practise the methods used to build a real world backend service and will use this in my front-end project on this course. In order to interact with this API please follow the link at the top of this README and navigate to the enpoint /api to get an overview of all available endpoints.
+I have built an API in order to practise the methods used to build a real world backend service and will use this in my front-end project on this course. In order to interact with this API please follow the link at the top of this README to access the API and get an overview of all available endpoints.
 
 ### To Use This Repo
 
