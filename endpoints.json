@@ -16,7 +16,7 @@
   },
   "GET /api/reviews": {
     "description": "serves an array of all reviews",
-    "queries": ["category", "sort_by", "order"],
+    "queries": ["category", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "reviews": [
         {
@@ -28,7 +28,8 @@
           "created_at": "2021-01-18T10:00:20.514Z",
           "votes": 5
         }
-      ]
+      ],
+      "total_count": 20
     }
   },
   "GET /api/reviews/:review_id": {
@@ -66,7 +67,7 @@
   },
   "GET /api/reviews/:review_id/comments": {
     "description": "serves an array of all comments on specified review",
-    "queries": [],
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {
@@ -77,7 +78,8 @@
           "votes": 13,
           "created_at": "2021-01-18T10:24:05.410Z"
         }
-      ]
+      ],
+      "total_count": 20
     }
   },
   "POST /api/reviews/:review_id/comments": {
@@ -113,6 +115,80 @@
   },
   "DELETE /api/comments/:comment_id": {
     "description": "Removes specified comment",
+    "queries": [],
+    "exampleResponse": {}
+  },
+  "POST /api/categories": {
+    "description": "Inserts a new category and serves up new category object",
+    "queries": [],
+    "exampleBody": {
+      "slug": "not slimy",
+      "description": "not the animal"
+    },
+    "exampleResponse": {
+      "category": {
+        "slug": "not slimy",
+        "description": "not the animal"
+      }
+    }
+  },
+  "POST /api/reviews": {
+    "description": "Inserts a new review and serves up new review object",
+    "queries": [],
+    "exampleBody": {
+      "owner": "mallionaire",
+      "title": "this is a review",
+      "review_body": "something about the game",
+      "designer": "Someone Really Cool",
+      "category": "dexterity"
+    },
+    "exampleResponse": {
+      "category": {
+        "owner": "mallionaire",
+        "title": "this is a review",
+        "review_body": "something about the game",
+        "designer": "Someone Really Cool",
+        "category": "dexterity",
+        "review_id": 14,
+        "votes": 0,
+        "review_img_url": "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
+        "created_at": "2021-01-18T10:00:20.514Z",
+        "comment_count": 0
+      }
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "Updates votes property on specified comment",
+    "queries": [],
+    "exampleBody": {
+      "inc_votes": 2
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 7,
+        "body": "something about games",
+        "review_id": 1,
+        "author": "mallionaire",
+        "votes": 2,
+        "created_at": "2022-10-12T09:44:52.656Z"
+      }
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "serves up a json representation of the specified user",
+    "queries": [],
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "mallionaire",
+          "name": "haz",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+  "DELETE /api/reviews/:review_id": {
+    "description": "Deletes specified review",
     "queries": [],
     "exampleResponse": {}
   }
