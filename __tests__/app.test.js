@@ -67,6 +67,132 @@ describe("/api", () => {
     });
   });
   describe("/reviews", () => {
+    describe("GET /api/reviews", () => {
+      test("200: responds with array of review objects sorted by date", () => {
+        return request(app)
+          .get("/api/reviews")
+          .expect(200)
+          .then(({ body: { reviews } }) => {
+            expect(reviews).toBeSortedBy("created_at", { descending: true });
+            expect(reviews.length).toBe(13);
+            expect(
+              reviews.forEach((review) => {
+                expect(review).toEqual(
+                  expect.objectContaining({
+                    owner: expect.any(String),
+                    title: expect.any(String),
+                    review_id: expect.any(Number),
+                    category: expect.any(String),
+                    review_img_url: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    designer: expect.any(String),
+                    comment_count: expect.any(Number),
+                  })
+                );
+              })
+            );
+          });
+      });
+      test("200: should accept a category query to filter reviews by category", () => {
+        return request(app)
+          .get("/api/reviews?category=social+deduction")
+          .expect(200)
+          .then(({ body: { reviews } }) => {
+            expect(reviews.length).toBe(11);
+            expect(
+              reviews.forEach((review) => {
+                expect(review).toEqual(
+                  expect.objectContaining({
+                    category: "social deduction",
+                  })
+                );
+              })
+            );
+          });
+      });
+      describe("Errors", () => {
+        test("404: responds with error when category does not exist", () => {
+          return request(app)
+            .get("/api/reviews?category=obscure+category")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("No such category");
+            });
+        });
+        test("200: should respond with empty array when category exists but has no reviews", () => {
+          return request(app)
+            .get("/api/reviews?category=children's+games")
+            .expect(200)
+            .then(({ body: { reviews } }) => {
+              expect(reviews).toEqual([]);
+            });
+        });
+      });
+      describe("FEATURE pagination", () => {
+        test("200: should accept a limit query", () => {
+          return request(app)
+            .get("/api/reviews?limit=5")
+            .expect(200)
+            .then(({ body: { reviews } }) => {
+              expect(reviews).toHaveLength(5);
+            });
+        });
+        test("200: should accept a page query when used with limit", () => {
+          const firstPage = request(app).get(
+            "/api/reviews?sort_by=review_id&limit=5&p=1"
+          );
+
+          const secondPage = request(app).get(
+            "/api/reviews?sort_by=review_id&limit=5&p=2"
+          );
+
+          return Promise.all([firstPage, secondPage]).then(
+            ([
+              {
+                body: { reviews: reviews1 },
+              },
+              {
+                body: { reviews: reviews2 },
+              },
+            ]) => {
+              expect(reviews1).not.toEqual(reviews2);
+              expect(reviews1[0].review_id).toBe(13);
+              expect(reviews2[0].review_id).toBe(8);
+            }
+          );
+        });
+        describe("Errors", () => {
+          test("400: when limit of incorrect datatype", () => {
+            return request(app)
+              .get("/api/reviews?limit=nan")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for limit");
+              });
+          });
+          test("400: when page not of correct datatype", () => {
+            return request(app)
+              .get("/api/reviews?p=nan&limit=5")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("Incorrect datatype for page");
+              });
+          });
+          test("404: when page with no data", () => {
+            return request(app)
+              .get("/api/reviews?p=9999&limit=5")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("No content found on p9999");
+              });
+          });
+          test("200: ignores page when no limit", () => {
+            // return request(app);
+          });
+        });
+      });
+    });
     describe("GET /api/reviews/:review_id", () => {
       test("200: respond with a review object", () => {
         return request(app)
@@ -398,70 +524,6 @@ describe("/api", () => {
             .then(({ body: { msg } }) => {
               expect(msg).toBe("No content found for (owner)=(notauser)");
             });
-        });
-      });
-      describe("FEATURE pagination", () => {
-        test("200: should accept a limit query", () => {
-          return request(app)
-            .get("/api/reviews?limit=5")
-            .expect(200)
-            .then(({ body: { reviews } }) => {
-              expect(reviews).toHaveLength(5);
-            });
-        });
-        test("200: should accept a page query when used with limit", () => {
-          const firstPage = request(app).get(
-            "/api/reviews?sort_by=review_id&limit=5&p=1"
-          );
-
-          const secondPage = request(app).get(
-            "/api/reviews?sort_by=review_id&limit=5&p=2"
-          );
-
-          return Promise.all([firstPage, secondPage]).then(
-            ([
-              {
-                body: { reviews: reviews1 },
-              },
-              {
-                body: { reviews: reviews2 },
-              },
-            ]) => {
-              expect(reviews1).not.toEqual(reviews2);
-              expect(reviews1[0].review_id).toBe(13);
-              expect(reviews2[0].review_id).toBe(8);
-            }
-          );
-        });
-        describe("Errors", () => {
-          test("400: when limit of incorrect datatype", () => {
-            return request(app)
-              .get("/api/reviews?limit=nan")
-              .expect(400)
-              .then(({ body: { msg } }) => {
-                expect(msg).toBe("Incorrect datatype for limit");
-              });
-          });
-          test("400: when page not of correct datatype", () => {
-            return request(app)
-              .get("/api/reviews?p=nan&limit=5")
-              .expect(400)
-              .then(({ body: { msg } }) => {
-                expect(msg).toBe("Incorrect datatype for page");
-              });
-          });
-          test("404: when page with no data", () => {
-            return request(app)
-              .get("/api/reviews?p=9999&limit=5")
-              .expect(404)
-              .then(({ body: { msg } }) => {
-                expect(msg).toBe("No content found on p9999");
-              });
-            
-          })
-            test('200: ignores page when no limit', () => {
-              return request(app)
-            });;
         });
       });
     });
