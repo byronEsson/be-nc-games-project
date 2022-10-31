@@ -12,7 +12,12 @@ app.use(cors());
 app.use(express.json());
 
 app.all("/", (req, res) => {
-  res.status(200).send({ greeting: "Hello there" });
+  res
+    .status(200)
+    .send({
+      greeting: "Hello there",
+      instructions: "Navigate to /api to see a list of all enpoints",
+    });
 });
 app.use("/api", apiRouter);
 
