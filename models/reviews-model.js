@@ -91,12 +91,27 @@ exports.selectCommentsByReview = (id, { limit = 10, p = 1 }) => {
   });
 };
 
-exports.insertReview = ({ owner, title, review_body, designer, category }) => {
+exports.insertReview = ({
+  owner,
+  title,
+  review_body,
+  designer,
+  category,
+  review_img_url,
+}) => {
   const values = [owner, title, review_body, designer, category];
-  const queryString = `INSERT INTO reviews (owner, title, review_body, designer, category)
-  VALUES ($1, $2, $3, $4, $5) RETURNING review_id`;
+  let firstQueryString = `INSERT INTO reviews (owner, title, review_body, designer, category`;
 
-  return db.query(queryString, values).then(({ rows: [id] }) => {
+  let secondQueryString = `) VALUES ($1, $2, $3, $4, $5`;
+  if (review_img_url) {
+    values.push(review_img_url);
+    secondQueryString += ", $6";
+    firstQueryString += ", review_img_url";
+  }
+
+  firstQueryString += secondQueryString + `) RETURNING review_id`;
+
+  return db.query(firstQueryString, values).then(({ rows: [id] }) => {
     return id;
   });
 };
